@@ -368,9 +368,11 @@ class _LoginCard extends StatefulWidget {
 class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
+  final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _confirmPasswordFocusNode = FocusNode();
 
+  TextEditingController? _usernameController;
   TextEditingController? _nameController;
   TextEditingController? _passController;
   TextEditingController? _confirmPassController;
@@ -400,6 +402,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     super.initState();
 
     final auth = Provider.of<Auth>(context, listen: false);
+    _usernameController = TextEditingController(text: auth.username);
     _nameController = TextEditingController(text: auth.email);
     _passController = TextEditingController(text: auth.password);
     _confirmPassController = TextEditingController(text: auth.confirmPassword);
@@ -457,6 +460,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
   @override
   void dispose() {
     _loadingController.removeStatusListener(handleLoadingAnimationStatus);
+    _usernameFocusNode.dispose();
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
 
@@ -501,11 +505,13 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
     if (auth.isLogin) {
       error = await auth.onLogin!(LoginData(
+        username: auth.username,
         name: auth.email,
         password: auth.password,
       ));
     } else {
       error = await auth.onSignup!(LoginData(
+        username: auth.username,
         name: auth.email,
         password: auth.password,
       ));
@@ -571,6 +577,24 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     widget.onSubmitCompleted!();
 
     return true;
+  }
+
+  Widget _buildUsernameField(double width, LoginMessages messages, Auth auth) {
+    return AnimatedTextFormField(
+      controller: _usernameController,
+      width: width,
+      loadingController: _loadingController,
+      interval: _passTextFieldLoadingAnimationInterval,
+      labelText: "Username",
+      prefixIcon: Icon(FontAwesomeIcons.solidUserCircle),
+      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (value) {
+        FocusScope.of(context).requestFocus(_usernameFocusNode);
+      },
+      validator: widget.passwordValidator,
+      onSaved: (value) => auth.username = value!,
+    );
   }
 
   Widget _buildNameField(double width, LoginMessages messages, Auth auth) {
@@ -742,6 +766,15 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       key: _formKey,
       child: Column(
         children: [
+          ExpandableContainer(
+            controller: _switchAuthController,
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 20),
+                _buildUsernameField(textFieldWidth, messages, auth),
+              ],
+            ),
+          ),
           Container(
             padding: EdgeInsets.only(
               left: cardPadding,
