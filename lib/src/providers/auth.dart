@@ -6,13 +6,13 @@ import '../models/login_data.dart';
 enum AuthMode { Signup, Login }
 
 /// The result is an error message, callback successes if message is null
-typedef AuthCallback = Future<String> Function(LoginData);
+typedef AuthCallback = Future<String?>? Function(LoginData);
 
 /// The result is an error message, callback successes if message is null
-typedef ProviderAuthCallback = Future<String> Function();
+typedef ProviderAuthCallback = Future<String?>? Function();
 
 /// The result is an error message, callback successes if message is null
-typedef RecoverCallback = Future<String> Function(String);
+typedef RecoverCallback = Future<String?>? Function(String);
 
 class Auth with ChangeNotifier {
   Auth({
@@ -20,19 +20,17 @@ class Auth with ChangeNotifier {
     this.onLogin,
     this.onSignup,
     this.onRecoverPassword,
-    String username = '',
     String email = '',
     String password = '',
     String confirmPassword = '',
-  })  : _username = username,
-        _email = email,
+  })  : _email = email,
         _password = password,
         _confirmPassword = confirmPassword;
 
-  final AuthCallback onLogin;
-  final AuthCallback onSignup;
-  final RecoverCallback onRecoverPassword;
-  final List<LoginProvider> loginProviders;
+  final AuthCallback? onLogin;
+  final AuthCallback? onSignup;
+  final RecoverCallback? onRecoverPassword;
+  final List<LoginProvider>? loginProviders;
 
   AuthMode _mode = AuthMode.Login;
 
@@ -57,13 +55,6 @@ class Auth with ChangeNotifier {
       mode = AuthMode.Login;
     }
     return mode;
-  }
-
-  String _username = '';
-  String get username => _username;
-  set username(String username) {
-    _username = username;
-    notifyListeners();
   }
 
   String _email = '';
