@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 class LoginMessages with ChangeNotifier {
   LoginMessages({
+    this.usernameFieldHint = defaultUsernameFieldHint,
+    this.confirmUsernameFieldError = defaultConfirmUsernameFieldError,
     this.usernameHint = defaultUsernameHint,
     this.passwordHint = defaultPasswordHint,
     this.confirmPasswordHint = defaultConfirmPasswordHint,
@@ -19,6 +21,8 @@ class LoginMessages with ChangeNotifier {
     this.signUpSuccess = defaultSignUpSuccess,
   });
 
+  static const defaultUsernameFieldHint = 'Username';
+  static const defaultConfirmUsernameFieldError = '6 characters minimum';
   static const defaultUsernameHint = 'Email';
   static const defaultPasswordHint = 'Password';
   static const defaultConfirmPasswordHint = 'Confirm Password';
@@ -35,6 +39,12 @@ class LoginMessages with ChangeNotifier {
   static const defaultflushbarTitleSuccess = 'Success';
   static const defaultflushbarTitleError = 'Error';
   static const defaultSignUpSuccess = 'An activation link has been sent';
+
+  /// Hint text of the user name field [TextField]
+  final String usernameFieldHint;
+
+  /// Hint text of the user name field [TextField]
+  final String confirmUsernameFieldError;
 
   /// Hint text of the user name [TextField]
   final String usernameHint;

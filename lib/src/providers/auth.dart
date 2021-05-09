@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../flutter_login.dart';
 import '../models/login_data.dart';
+import '../models/register_data.dart';
 
 enum AuthMode { Signup, Login }
 
 /// The result is an error message, callback successes if message is null
-typedef AuthCallback = Future<String?>? Function(LoginData);
+typedef AuthCallbackLogin = Future<String?>? Function(LoginData);
+typedef AuthCallbackRegister = Future<String?>? Function(RegisterData);
 
 /// The result is an error message, callback successes if message is null
 typedef ProviderAuthCallback = Future<String?>? Function();
@@ -29,8 +31,8 @@ class Auth with ChangeNotifier {
         _password = password,
         _confirmPassword = confirmPassword;
 
-  final AuthCallback? onLogin;
-  final AuthCallback? onSignup;
+  final AuthCallbackLogin? onLogin;
+  final AuthCallbackRegister? onSignup;
   final RecoverCallback? onRecoverPassword;
   final List<LoginProvider>? loginProviders;
 

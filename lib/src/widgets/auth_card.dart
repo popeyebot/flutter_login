@@ -17,6 +17,7 @@ import '../providers/auth.dart';
 import '../providers/login_messages.dart';
 import '../providers/login_theme.dart';
 import '../models/login_data.dart';
+import '../models/register_data.dart'; // added
 import '../dart_helper.dart';
 import '../matrix.dart';
 import '../paddings.dart';
@@ -505,12 +506,11 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
     if (auth.isLogin) {
       error = await auth.onLogin!(LoginData(
-        username: auth.username,
         name: auth.email,
         password: auth.password,
       ));
     } else {
-      error = await auth.onSignup!(LoginData(
+      error = await auth.onSignup!(RegisterData(
         username: auth.username,
         name: auth.email,
         password: auth.password,
@@ -585,14 +585,26 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       width: width,
       loadingController: _loadingController,
       interval: _passTextFieldLoadingAnimationInterval,
-      labelText: "Username",
+      labelText: messages.usernameFieldHint,
       prefixIcon: Icon(FontAwesomeIcons.solidUserCircle),
       keyboardType: TextInputType.text,
       textInputAction: TextInputAction.next,
       onFieldSubmitted: (value) {
-        FocusScope.of(context).requestFocus(_usernameFocusNode);
+        if (auth.isLogin) {
+          _submit();
+        } else {
+          // SignUp
+          FocusScope.of(context).requestFocus(_confirmPasswordFocusNode);
+        }
       },
-      validator: widget.passwordValidator,
+      validator: auth.isSignup
+          ? (String? value) {
+              if (value != null && value.length > 6) {
+                return null;
+              }
+              return messages.confirmUsernameFieldError;
+            }
+          : (value) => null,
       onSaved: (value) => auth.username = value!,
     );
   }
@@ -768,6 +780,16 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
         children: [
           ExpandableContainer(
             controller: _switchAuthController,
+            backgroundColor: theme.accentColor,
+            color: theme.cardTheme.color,
+            padding: EdgeInsets.symmetric(
+              horizontal: cardPadding,
+              vertical: 10,
+            ),
+            initialState: isLogin
+                ? ExpandableContainerState.shrunk
+                : ExpandableContainerState.expanded,
+            onExpandCompleted: () => _postSwitchAuthController.forward(),
             child: Column(
               children: <Widget>[
                 SizedBox(height: 20),
